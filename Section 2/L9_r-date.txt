@@ -1,0 +1,44 @@
+#######################################################################
+### ###### Work with dates in R
+library(lubridate)
+today()
+
+now()
+
+x="2014-10-12"
+#YYYY-MM-DD
+
+# Examine structure of x
+str(x)
+
+# Use as.Date() to interpret x as a date
+dt1 <- as.Date(x)
+##standard formats for Oct 12, 2014
+str(dt1)
+
+
+##### convert non standard dates to standard
+
+dt2 = as.Date("11/14/2005", format = "%m/%d/%Y")
+str(dt2)
+
+dt3 = as.Date("May 16, 1995", format = "%B %d, %Y")
+str(dt3)
+
+############ Date calculations
+
+dt2-dt3
+
+dt2>dt3
+
+##POSIXct: for time component
+
+tm1 = as.POSIXct("2013-07-24 23:55:26")
+tm1
+
+tm3 = as.POSIXct("2010-12-01 11:42:03", tz = "GMT") #specify zone
+tm3
+
+tm3>tm1
+
+tm1-tm3

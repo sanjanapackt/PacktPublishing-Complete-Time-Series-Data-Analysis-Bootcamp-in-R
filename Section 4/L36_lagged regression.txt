@@ -1,0 +1,33 @@
+##### Lagged Regression
+
+##AR(1) model (auto regressive model of order 1), 
+##which is a linear ARIMA model that uses the values of t - 1 
+##to predict t
+
+##assumptions:
+##Assumes that the errors are independently distributed with a normal distribution.
+##Error terms are independent.
+
+require(astsa)
+
+plot(gtemp)
+
+lag.plot(gtemp, lags=1, do.lines=FALSE)
+
+x = lag(gtemp, 1)#create lag of 1
+
+data = ts.intersect(gtemp, x, dframe=TRUE)
+
+head(data)
+
+fit= lm(data[,1] ~ data[,2]) 
+##gtemp is response and its lag of 1 is the predictor 
+
+summary(fit)         
+         
+###### check the conditions
+
+par(mfrow=c(2, 2))
+plot(fit)
+
+## slight auto correlation problem in the residuals

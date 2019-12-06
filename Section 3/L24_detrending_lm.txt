@@ -1,0 +1,30 @@
+######## Detrending Time Series With Linear Regression
+
+####Use linear regression to model the Time Series data with 
+####linear indices 
+#### model’s residuals is a representation of the time series 
+#### devoid of the trend
+
+library(Quandl)
+library(astsa)
+library(forecast)
+library("tseries")
+
+gdp = Quandl("FRED/GDPC1",order="asc") # Download data via Quandl
+head(gdp)
+
+names(gdp) <- c("Time","GDP") # Rename variables
+gdp[,"GDP"] <- log(gdp[,"GDP"]) # Take logs
+
+library(ggplot2)
+library(reshape2)
+ggplot(gdp,aes(x=Time,y=GDP)) + geom_line(size=.5) + theme_classic() + labs(title="Log Real US GDP")
+
+##residuals of linear regression 
+time.detrend <- residuals(lm(GDP ~ Time, data=gdp)) # Regress GDP on Time and obtain residuals
+
+# Plot
+dat <- data.frame("Time"=gdp[,"Time"],"Linearly.Detrended"=time.detrend)
+ggplot(dat,aes(x=Time,y=Linearly.Detrended)) + geom_hline(yintercept=0,colour="grey80") + geom_line(size=.5) + theme_classic() + labs(title="Linearly Detrended",y="")
+
+adf.test(dat$Linearly.Detrended)

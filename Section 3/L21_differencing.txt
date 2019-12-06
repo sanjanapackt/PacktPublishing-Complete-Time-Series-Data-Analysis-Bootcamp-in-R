@@ -1,0 +1,53 @@
+########## Differencing 
+### Turn Non-Stationary to Stationary 
+
+library(astsa)
+library(forecast)
+library("tseries")
+
+plot(gtemp, xlab="Year", ylab="Deviation", main="Global Temperature Deviations, 1880-2009")
+
+acf2(gtemp)
+adf.test(gtemp)
+
+
+plot(diff(gtemp)) #first difference
+##difference between value at present time and one-time previous
+
+acf2(diff(gtemp))
+##all significant correlation being removed after lag 1
+
+adf.test(diff(gtemp)) #ADF on differenced data
+
+######### Dengue data
+setwd("F:\\DataMining_R\\3_LectureData\\time")
+
+d=read.csv("denguecases.csv")
+head(d)
+tail(d)
+
+#Aggregate regional data to represent the entire country
+denguecasesph=aggregate(Dengue_Cases~Month+Year,d,sum)
+
+head(denguecasesph)
+
+#Convert data into a time series
+denguecasesphts=ts(denguecasesph$Dengue_Cases,c(2008,1),c(2016,12),12)
+
+#12 is specified as these are monthly data
+
+plot(denguecasesphts)
+
+
+#Check stationarity of differenced data
+adf.test(denguecasesphts)
+
+acf2(denguecasesphts)
+
+plot(diff(denguecasesphts)) #first difference
+##difference between value at present time and one-time previous
+
+acf2(diff(denguecasesphts))
+
+adf.test(diff(denguecasesphts))
+     

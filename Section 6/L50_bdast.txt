@@ -1,0 +1,50 @@
+############## BFAST
+### Breaks For Additive Season and Trend
+###seasonal and trend detection in a timeseries
+
+require(bfast)
+require(quantmod)
+require(strucchange)
+
+getSymbols("XRT",from="2000-01-01") #XRT
+getSymbols("SPY",from="2000-01-01")#
+#get relative strenght as weekly log price
+xrt_rs <- log(to.weekly(XRT[,6] / SPY[,6])[,4])
+head(xrt_rs)
+class(xrt_rs)
+
+#need ts representation so do some brute force conversion
+xrt_rs.ts <- ts(
+  as.vector(xrt_rs),
+  start=c(
+    as.numeric(format(index(xrt_rs[1,]),"%Y")), #year
+    as.numeric(format(index(xrt_rs[1,]),"%m"))  #month
+  ),
+  frequency=52
+)
+#look at the stl Seasonal-Trend decomposition procedure already in R
+xrt_rs.stl <- stl(xrt_rs.ts,s.window="periodic")
+plot(xrt_rs.stl,main="STL Decomposition of S&P 500")
+### bfast
+
+#get the results from bfast
+#adjusting h lower will result in more breakpoints
+xrt_rs.bfast <- bfast(xrt_rs.ts,h=0.15,max.iter=1,season="none")
+plot(
+  xrt_rs.bfast,
+  type="components",
+  ylim=c(3,max(xrt_rs)+1),
+  main="Retail Rel Strength with bfast Breakpoints and Components"
+)
+
+
+plot(xrt_rs.bfast$Yt/xrt_rs.bfast$output[[1]]$Tt-1,
+     main="bfast Remainder as % of Retail Rel Strength",
+     xlab=NA, ylab="remainder (% of rel strength)",bty="l")
+#add vertical line for the breakpoints
+abline(v=breakdates(xrt_rs.bfast$output[[1]]$bp.Vt),col="gray70")
+#add horizontal line at 0
+abline(h=0,col="black",lty=2)
+text(x=breakdates(xrt_rs.bfast$output[[1]]$bp.Vt),y=par("usr")[3]+.01,
+     labels=breakdates(xrt_rs.bfast$output[[1]]$bp.Vt,format.times=TRUE),
+     srt=90,pos=4,cex=0.75)

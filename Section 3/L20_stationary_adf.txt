@@ -1,0 +1,44 @@
+##A stationary time series is one whose statistical properties 
+##such as mean, variance, autocorrelation, etc donot vary
+
+##Most TS modelling techniques need our data to be stationary
+
+
+library("tseries") #Statistical Tests for Time Series data
+library("forecast") #Modeling and Forecasting
+
+data("nottem")
+
+plot(nottem)
+plot(decompose(nottem))
+start(nottem)
+
+#Augmented Dickey-Fuller Test
+#H0: Time series are non-stationary
+adf.test(nottem)
+
+######### Dengue data
+setwd("F:\\DataMining_R\\3_LectureData\\time")
+
+d=read.csv("denguecases.csv")
+head(d)
+tail(d)
+
+#Aggregate regional data to represent the entire country
+denguecasesph=aggregate(Dengue_Cases~Month+Year,d,sum)
+
+head(denguecasesph)
+
+#Convert data into a time series
+denguecasesphts=ts(denguecasesph$Dengue_Cases,c(2008,1),c(2016,12),12)
+
+#12 is specified as these are monthly data
+
+plot(denguecasesphts)
+
+plot(decompose(denguecasesphts))
+
+#Check stationarity of differenced data
+adf.test(denguecasesphts)
+#p-value is greater than our 0.05 level of significance 
+#we can conclude that our time series data is non-stationary

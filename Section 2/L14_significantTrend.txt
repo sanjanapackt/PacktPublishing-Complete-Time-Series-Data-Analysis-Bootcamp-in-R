@@ -1,0 +1,43 @@
+######################### annual data and its trend
+
+g=read.csv("growth_in_gdp.csv")
+head(g)
+
+names(g)
+
+n=c("TIME","Country","Value")
+
+df= g[,colnames(g) %in% n] 
+
+head(df)
+tail(df)
+
+data=df[,c("Country","Value")]
+head(data)
+
+unique(data$Country)
+
+jp=subset(data,Country=="Japan")
+
+head(jp)
+
+data=as.numeric(unlist(jp[2]))
+head(data)
+
+data1=ts(data,start=c(1985),end=c(2015),frequency=1)
+
+plot(data1)
+
+lines(lowess(time(data1),data1),lwd=3, col=2)
+
+
+######### Is there a significant trend?
+library(tseries)
+head(jp)
+
+## Randomness Test-Runs, 
+xx1 = factor(ifelse(jp$Value >= median(jp$Value),1,0))
+
+runs.test(xx1, a = "less")
+##p<0.05 hence the H0 rejected
+## time series has a trend

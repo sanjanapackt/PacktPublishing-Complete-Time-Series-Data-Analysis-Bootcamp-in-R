@@ -1,0 +1,53 @@
+setwd("F:\\Forecasting_R\\1_Course\\Data\\section 4")
+d=read.csv("denguecases.csv")
+head(d)
+tail(d)
+
+library(forecast)
+library(tseries)
+library(ggplot2)
+library(ggfortify)
+
+#Aggregate regional data to represent the entire country
+denguecasesph=aggregate(Dengue_Cases~Month+Year,d,sum)
+
+head(denguecasesph)
+
+#Convert data into a time series
+denguecasesphts=ts(denguecasesph$Dengue_Cases,c(2008,1),c(2016,12),12)
+
+head(denguecasesphts)
+
+#Plot time series data
+autoplot(denguecasesphts)+xlab(label = "TIME")+
+  ylab(label = "DENGUE CASES PER 100,000 POPULATION")+
+  ggtitle("DENGUE CASES IN THE PHILIPPINES")
+
+#Test Stationarity of Time Series data
+adf.test((denguecasesphts))
+
+#Check the number of lag/s differencing needed to stationarize time series
+ndiffs(denguecasesphts)
+
+#Perform lag 1 differencing
+denguecasesphtsdiff = diff(denguecasesphts)
+#Plot differenced data
+autoplot(denguecasesphtsdiff)
+
+adf.test((denguecasesphtsdiff))
+
+## automatic arima
+d_arima = auto.arima(denguecasesphts)
+d_arima
+
+##It recommended an autoregressive function of lag 3 (p),
+##with lag 1 differencing (d), and moving amerage model of lag 3.
+## The seasonal model has autoregressive term of lag 2. 
+##We did not use the differenced data but the actual dataset instead 
+##to demonstrate that the auto.arima() function has successfully identified the number of lag differencing needed to stationarize our data.
+
+#Make forecast for 2017
+dengueph_forecast = forecast(d_arima,12)
+#Plot forecast
+autoplot(dengueph_forecast)+
+  ylab(label = "DENGUE CASES PER 100,000 POPULATION")

@@ -1,0 +1,43 @@
+########### Monthly variations
+
+
+library(fpp)
+library(astsa)
+library(DT)
+library(dygraphs)
+
+setwd("F:\\UltimateDS_R\\time lectures\\time data")
+
+stck=read.csv("5stocks.csv")
+
+tail(stck)
+
+s=stck[,1:2]
+head(s)
+
+sts <- ts(s, frequency = 12, start = c(2001,7), end = c(2017,5))
+
+plot.ts(sts[,2], main = "AAPL Stock Fluctuation", xlab = "Year", ylab = "ML")
+
+seasonplot(sts[,2], year.labels = TRUE, year.labels.left=TRUE, col=1:40, pch=19, main = "Seasonal Variation in AAPL stocks", xlab = "Month", ylab = "ML")
+
+## monthly plots
+
+monthplot(sts[,2], year.labels = TRUE, year.labels.left=TRUE, col=1:40, pch=19, main = "Monthly Variation in AAPL stocks", xlab = "Month", ylab = "ML")
+
+## Monthly variation-- boxplot
+
+boxplot(sts[,2] ~ cycle(sts[,2]), xlab = "Month", ylab = "ML", main = "Monthly Variation in AAPL stocks")
+
+##### Moving average smoothing to see the trend (smooth seasonality)
+
+plot(sts[,2], col="gray", main = "1 Year Moving Average Smoothing")
+lines(ma(sts[,2], order = 12), col = "red", lwd=3)
+
+plot(sts[,2], col="gray", main = "3 Year Moving Average Smoothing")
+lines(ma(sts[,2], order = 36), col = "red", lwd=3)
+
+plot(sts[,2], col="gray", main = "10 Year Moving Average Smoothing")
+lines(ma(sts[,2], order = 120), col = "red", lwd=3)
+#by adding up the values of the last 10 yrs and 
+#dividing the sum by 10*12

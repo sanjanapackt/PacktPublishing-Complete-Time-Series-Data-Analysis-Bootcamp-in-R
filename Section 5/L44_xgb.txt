@@ -1,0 +1,40 @@
+#######################################################################################
+
+##devtools::install_github("ellisp/forecastxgb-r-package/pkg")
+
+library(forecastxgb)
+
+library(fpp)
+
+data("usconsumption")
+head(usconsumption)
+
+consumption = usconsumption[ ,1]
+income = matrix(usconsumption[ ,2], dimnames = list(NULL, "Income"))
+
+#ml model
+consumption_model = xgbar(y = consumption, xreg = income)
+summary(consumption_model)
+
+##the two most important features explaining 
+##consumption are the two previous quarters' values of consumption
+
+income_future = matrix(forecast(xgbar(usconsumption[,2]), h = 10)$mean, 
+                        dimnames = list(NULL, "Income"))
+
+#the data structure is the same as the original xreg. 
+#When the new value of xreg is given to forecast, 
+#it forecasts forward the number of rows of the new xreg.
+
+plot(forecast(consumption_model, xreg = income_future))
+
+
+####### can also specfiy differencing
+
+data("AirPassengers")
+class(AirPassengers)
+
+model = xgbar(AirPassengers, trend_method = "differencing", seas_method = "fourier")
+model
+
+plot(forecast(model, 24))

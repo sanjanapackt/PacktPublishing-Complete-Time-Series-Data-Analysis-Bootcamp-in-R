@@ -1,0 +1,39 @@
+####################################################################
+########## Seasonal differencing
+
+##Seasonal difference of a time series is the series of changes 
+##from one season to the next. 
+##For monthly data, in which there are 12 periods in a season, 
+##the seasonal difference of Y at period t is Yt - Yt-12.
+
+##Seasonal differencing is a crude form of additive seasonal 
+##adjustment: the "index" which is subtracted from each value of 
+##the time series is simply the value that was observed in the 
+##same season one year earlier
+##This removes trend-- renders the time series stationary
+
+library(astsa)
+library(forecast)
+library("tseries")
+
+data("AirPassengers")
+plot(AirPassengers)
+
+# Seasonal Differencing
+nsdiffs(AirPassengers)  # number for seasonal differencing needed
+
+AirPassengers_seasdiff = diff(AirPassengers, lag=frequency(AirPassengers), differences=1)  
+# seasonal differencing
+plot(AirPassengers_seasdiff, type="l", main="Seasonally Differenced")  
+adf.test(AirPassengers_seasdiff) #not stationary
+## p>0.05
+
+# Make it stationary
+ndiffs(AirPassengers_seasdiff)  # number of differences need to make it stationary
+#> 1 
+stationaryTS = diff(AirPassengers_seasdiff, differences= 1)
+plot(stationaryTS, type="l", main="Differenced and Stationary")  # appears to be stationary
+
+adf.test(stationaryTS)
+kpss.test(stationaryTS) #tseries package
+##H0 : Time series is stationary

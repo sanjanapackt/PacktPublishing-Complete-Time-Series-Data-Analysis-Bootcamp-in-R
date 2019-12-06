@@ -1,0 +1,52 @@
+######## ARIMA with fourier 
+
+setwd("F:\\Forecasting_R\\1_Course\\Data\\section 6")
+require(data.table)
+require(TSA)
+require(forecast)
+
+train = fread("webtraf.csv")
+
+x = unlist(train[Page=="1984_(novela)_es.wikipedia.org_desktop_all-agents", -1])
+x = tsclean(x)
+
+ndiffs(x)
+
+##main seasonality detected is 7.02 days, 
+##the second seasonality is 192 days
+p <- periodogram(x)
+data.table(period=1/p$freq, spec=p$spec)[order(-spec)][1:2]
+
+# Train set
+y = ts(x[1:490])
+
+# Test set
+y.te = x[491:550]
+
+
+# Base model
+fit0 = auto.arima(y)
+(bestfit <- list(aicc=fit0$aicc, i=0, j=0, fit=fit0))
+
+fc0 = forecast(fit0, h=60)
+plot(fc0)
+
+
+# Choose the best model by AICc
+for(i in 1:3) {
+  for (j in 1:3){
+    z1 = fourier(ts(y, frequency=7.02), K=i)
+    z2 = fourier(ts(y, frequency=192), K=j)
+    fit = auto.arima(y, xreg=cbind(z1, z2), seasonal=F)
+    if(fit$aicc < bestfit$aicc) {
+      bestfit = list(aicc=fit$aicc, i=i, j=j, fit=fit)
+    }
+  }
+}
+bestfit
+
+fc = forecast(bestfit$fit, 
+               xreg=cbind(
+                 fourier(ts(y, frequency=7.02), K=bestfit$i, h=60),
+                 fourier(ts(y, frequency=192), K=bestfit$j, h=60)))
+plot(fc)

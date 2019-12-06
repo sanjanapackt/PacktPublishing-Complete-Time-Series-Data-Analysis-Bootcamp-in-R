@@ -1,0 +1,47 @@
+#####################################################################
+######## plot temporal data
+
+setwd("F:\\DataMining_R\\3_LectureData\\section3")
+
+stck=read.csv("5stocks.csv") ## Montly data
+## stock movements from July 2001-May 2017
+
+head(stck,n=50)
+tail(stck,n=10)
+
+ncol(stck)
+
+smove=stck[,2:6]
+
+head(smove)
+
+smove=na.omit(smove)
+
+##### convert data to a time series/ts object
+
+myts = ts(smove, start=c(2001, 7), end=c(2017, 5), frequency=12) 
+#monthly 
+#yearly data frequency 1
+plot(myts)
+
+start(myts)
+end(myts)
+frequency(myts)
+
+# subset the time series (June 2014 to December 2017)
+myts2 = window(myts, start=c(2014, 6), end=c(2017, 4))
+plot(myts2)
+
+plot.ts(myts2)
+
+library(devtools)
+install_github('sinhrks/ggfortify')
+
+require(ggfortify) #will plot the ts objects as ggplot2
+
+autoplot(myts) # time series on facets
+
+autoplot(myts, facets = FALSE) #time series of stocks on one plot
+
+library(xts)
+autoplot(as.xts(myts), ts.colour = 'green')

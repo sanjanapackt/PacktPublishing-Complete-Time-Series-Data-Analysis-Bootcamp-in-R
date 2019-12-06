@@ -1,0 +1,45 @@
+############# More on seasonality
+
+library(fpp)
+library(forecast)
+
+data(ausbeer)
+timeserie_beer = tail(head(ausbeer, 17*4+2),17*4-4)
+plot(as.ts(timeserie_beer),main="Additive Seasonality")
+
+trend_beer = ma(timeserie_beer, order = 4, centre = T) #ma of 4
+plot(as.ts(timeserie_beer))
+lines(trend_beer) #trend line
+plot(as.ts(trend_beer))
+
+##De-trend time series
+## Remove trend to expose seasonality
+
+detrend_beer = timeserie_beer - trend_beer 
+## subtract the previous trend in case of additive TS
+plot(as.ts(detrend_beer))
+
+##average seasonality
+m_beer = t(matrix(data = detrend_beer, nrow = 4))
+seasonal_beer = colMeans(m_beer, na.rm = T)
+plot(as.ts(rep(seasonal_beer,16))) #repeat 16 times
+
+######## Multiplicative seasonality
+data(AirPassengers)
+timeserie_air = AirPassengers
+plot(as.ts(timeserie_air),main="Multiplicative TS")
+
+trend_air = ma(timeserie_air, order = 12, centre = T)
+#tskr previous 12 months
+plot(as.ts(timeserie_air))
+lines(trend_air)
+plot(as.ts(trend_air))
+
+detrend_air = timeserie_air / trend_air
+### divide the previous trend in case of multiplicative TS
+plot(as.ts(detrend_air))
+
+##average seasonality
+m_air = t(matrix(data = detrend_air, nrow = 12))
+seasonal_air = colMeans(m_air, na.rm = T)
+plot(as.ts(rep(seasonal_air,12)))

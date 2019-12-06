@@ -1,0 +1,31 @@
+setwd("F:\\Forecasting_R\\1_Course\\Data\\section 4")
+
+library(prophet)
+library(dplyr)
+
+data= read.csv("5stocks.csv")
+head(data)
+
+df = data[c("Date","AAPL")]
+head(df)
+
+colnames(df) <- c("ds", "y")
+m = prophet(df)
+
+plot(df$y)
+df1 <- df
+df1$y <- log(df$y)
+plot(df1$y)
+
+m <- prophet(df1)
+future <- make_future_dataframe(m , periods = 365)
+head(future)
+
+pred <- predict(m, future) 
+tail(pred$yhat) 
+plot(m, pred)
+
+library(plotly)
+ggplotly(plot(m, pred))
+
+prophet_plot_components(m, pred)

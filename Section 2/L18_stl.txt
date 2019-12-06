@@ -1,0 +1,18 @@
+#############################################################
+### STL decomposition
+## time series into three components namely: the trend, seasonality and remainder
+
+tsData = EuStockMarkets[, 1] # ts data
+plot(tsData)
+decomposedRes = decompose(tsData, type="mult") 
+# use type = "additive" for additive components
+plot (decomposedRes) # see plot below
+
+## stl decomposition
+stlRes <- stl(tsData, s.window = "periodic")
+
+seasonal_stck =stlRes$time.series[,1]
+plot(seasonal_stck)
+
+trend_stck =stlRes$time.series[,2]
+plot(trend_stck)

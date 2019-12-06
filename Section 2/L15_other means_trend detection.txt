@@ -1,0 +1,58 @@
+####Detect trend
+
+require(astsa)
+
+data(cmort)
+head(cmort)
+class(cmort)
+
+plot(cmort, type='o')
+
+ma53<- filter(cmort, rep(1,53)/53)#weekly data
+
+plot(cmort, type='p', ylab='mortality')
+lines(ma53, lwd=2); lines(ma53, lwd=2)
+
+setwd("F:\\DataMining_R\\3_LectureData\\time")
+
+d=read.csv("denguecases.csv")
+head(d)
+tail(d)
+
+#Aggregate regional data to represent the entire country
+denguecasesph=aggregate(Dengue_Cases~Month+Year,d,sum)
+
+head(denguecasesph)
+
+#Convert data into a time series
+denguecasesphts=ts(denguecasesph$Dengue_Cases,c(2008,1),c(2016,12),12)
+
+#12 is specified as these are monthly data
+
+plot(denguecasesphts)
+
+ma13<- filter(denguecasesphts, rep(1,13)/13)
+
+plot(denguecasesphts, type='p', ylab='Dengue Cases')
+lines(ma13, lwd=2); lines(ma53, lwd=2)
+
+### Lowess
+
+plot(cmort, type='p', ylab='Mortality', main='nearest neighbor')
+lines(supsmu(time(cmort), cmort, span=0.5)) # n/2 for trend component
+lines(supsmu(time(cmort), cmort, span=0.01), col='blue')# n/100 for seasonal component
+
+plot(denguecasesphts, type='p', ylab='Dengue Cases', main='nearest neighbor')
+lines(supsmu(time(denguecasesphts), denguecasesphts, span=0.5)) # n/2 for trend component
+lines(supsmu(time(denguecasesphts), denguecasesphts, span=0.01), col='blue')# n/100 for seasonal component
+
+## splines
+
+plot(cmort, type='p', ylab='Mortality')
+lines(smooth.spline(time(cmort), cmort))
+lines(smooth.spline(time(cmort), cmort, spar=1))
+
+plot(denguecasesphts, type='p', ylab='Mortality')
+lines(smooth.spline(time(denguecasesphts), denguecasesphts))
+lines(smooth.spline(time(denguecasesphts), denguecasesphts, spar=1))
+

@@ -1,0 +1,30 @@
+######### Simple Moving Average
+
+##### Works well with data that have a constant mean
+
+require(expsmooth)
+require(smooth)
+
+data(hospital)
+head(hospital)
+
+### focus on monthly patient count
+
+plot(hospital[,500],xlab="Year",ylab="Count",col="red")
+
+### capture the yearly dynamics of monthly data
+## 
+
+data = hospital[,500]
+
+fit12 = sma(data, order=12, h=12, holdout=TRUE,
+            intervals="parametric",level=0.95)
+
+fit12$holdout
+
+### hold back some data for sample testing
+### we hold out 12 sample points (h)
+## order = 12, most recent 12 months
+
+sma(data, order=12, h=12, holdout=TRUE,
+    intervals="parametric",level=0.95, silent=FALSE)

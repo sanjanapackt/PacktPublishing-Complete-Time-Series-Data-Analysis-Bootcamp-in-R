@@ -1,0 +1,46 @@
+################# Linear regression for forecasting 
+
+library(fpp)
+library(forecast)
+
+data (usconsumption)
+
+plot(usconsumption)
+
+head(usconsumption)
+
+## time series based linear regression- tslm 
+fit=tslm(consumption~income,data=usconsumption)
+summary(fit)
+
+#fit1=lm(consumption~income,data=usconsumption)
+#summary(fit1)
+
+## Forecast consumption when there is a 1% increase or a 1% decrease
+##in income 
+fcast=forecast(fit,newdata = data.frame(income=c(-1,1)))
+
+plot(fcast, ylab="% change in consumption", xlab="% change in income")
+head(fcast)
+
+
+## forecast values for the next few years
+
+data= read.csv("5stocks.csv")
+head(data)
+
+df = data[c("Date","AAPL")]
+head(df)
+tail(df)
+
+df.ts <- ts(df, frequency = 12, start = c(2001,7), end = c(2017,5))
+
+class(df.ts)
+
+fit.ex4 <- tslm(df.ts ~ trend)
+
+## h is the number of years into the future
+## for 5 years we take 12*5 as our ts has frequency 12
+f <- forecast(fit.ex4, h=60)
+
+plot(f)

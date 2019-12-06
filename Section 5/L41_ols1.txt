@@ -1,0 +1,66 @@
+# install.packages("devtools")
+
+devtools::install_github("business-science/timetk")
+
+library(timetk)
+
+#library(xml2) #needed for tidyquant
+library(tidyverse)
+library(tidyquant)
+
+library(modelr)
+library(gridExtra)
+library(grid)
+library(caret)
+library(broom)
+
+data(FANG)
+head(FANG)
+summary(FANG)
+
+#Filter to get just the FB stock prices,
+#and select the “date” and “volume” columns
+FB_tbl = FANG %>% filter(symbol == "FB") %>% select(date, volume)
+
+FB_tbl
+
+#split the data into two sets, one for training and testing
+# Everything before 2016 will be used for training (2013-2015 data)
+
+train = FB_tbl %>% filter(date < ymd("2016-01-01")) 
+# Everything in 2016 will be used for comparing the output
+actual_future = FB_tbl %>% filter(date >= ymd("2016-01-01"))
+
+#augment the time series signature to the training set 
+#using tk_augment_timeseries_signature()
+
+train = tk_augment_timeseries_signature(train)
+#adds the time series signature as additional columns 
+#to the data frame
+train
+
+af=tk_augment_timeseries_signature(actual_future)
+
+#use ols to to model volume using the time series signature
+
+
+fit_lm = lm(volume ~ ., data = train[,-1])
+
+summary(fit_lm)
+
+# Prediction using a linear model, fit_lm, on future index time series signature
+pred_lm = predict(fit_lm, newdata = af)
+
+pl=as.data.frame(pred_lm)
+head(pl)
+
+plot(pl)
+
+x=cbind(pl,actual_future$volume)
+
+head(x)
+
+y=na.omit(x)
+head(y)
+
+plot(actual_future$volume,pred_lm)

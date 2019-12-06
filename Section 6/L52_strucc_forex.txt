@@ -1,0 +1,55 @@
+###detect structural breaks in China’s FX regime using 
+##Frenkel Wei regression methodology
+## Regression models for temporal currency exchange
+
+library("fxregime")
+library('strucchange')
+
+
+data("FXRatesCHF")
+
+## compute returns for CNY (and explanatory currencies)
+## since China abolished fixed USD regime
+cny = fxreturns("CNY", frequency = "daily",
+                 start = as.Date("2005-07-25"), end = as.Date("2010-02-12"),
+                 other = c("USD", "JPY", "EUR", "GBP"))
+
+head(cny)
+
+## compute all segmented regression with minimal segment size of
+## h = 100 and maximal number of breaks = 10
+
+##segments an exchange rate regression (Frankel-Wei regression) 
+##into different regimes. 
+##The breakpoints are chosen to maximize the likelihood of a 
+##Gaussian regression (with regime-specific variances). 
+##The number of breakpoints are selected according to information criteria 
+regx = fxregimes(CNY ~ USD + JPY + EUR + GBP,
+                  data = cny, h = 100, breaks = 10, ic = "BIC")
+
+
+## Print summary of regression results
+summary(regx)
+
+## minimum BIC is attained for 2-segment (1-break) model
+plot(regx)
+round(coef(regx), digits = 3)
+sqrt(coef(regx)[, "(Variance)"])
+
+## inspect associated confidence intervals
+cit <- confint(regx, level = 0.9)
+cit
+breakdates(cit)
+
+## plot LM statistics along with confidence interval
+flm = fxlm(CNY ~ USD + JPY + EUR + GBP, data = cny)
+#Exchange Rate Regression
+#Interface to lm for fitting exchange rate regression models 
+#(Frankel-Wei models).
+
+##In many applications it is reasonable to assume that there 
+##are m breakpoints
+scus = gefp(flm, fit = NULL) #test for breakpoints
+plot(scus, functional = supLM(0.1))
+## add lines related to breaks to your plot
+lines(cit)

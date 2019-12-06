@@ -1,0 +1,25 @@
+###### Lags
+
+library(forecast)
+library(stats)
+
+##When the time base is shifted by a given number of periods,
+## a Lag of time series is created.
+## Lags of a time series are often used as explanatory variables 
+## to model the actual time series itself.
+
+tsData = EuStockMarkets[, 1] # ts data
+
+laggedTS =stats::lag(tsData, 3) # shifted 3 periods earlier
+##lagged ts
+
+##Use `-3` to shift by 3 periods forward.
+##leading time series
+
+library(DataCombine)
+
+myDf = as.data.frame(tsData)
+myDf = slide(myDf, "x", NewVar = "xLag1", slideBy = 1)  # create lag1 variable
+myDf = slide(myDf, "x", NewVar = "xLead1", slideBy = -1)  # create lead1 variable
+
+head(myDf)

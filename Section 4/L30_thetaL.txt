@@ -1,0 +1,45 @@
+########### Theta Lines
+
+library(HEAT)
+library(xts)
+
+data("mort")
+
+
+###extract a specific dataset
+
+G=read6city(mort,24)
+
+head(G)
+class(G)
+
+### store the dates seperately
+date1 = seq(as.Date("2000-01-01"),as.Date("2007-12-31"),
+            by = "1 day")
+
+co_con = zoo(G$meanco, date1)
+
+require(imputeTS)
+
+plotNA.distribution(co_con,ylab="CO2 concentration")
+
+##remove NAs using interpolation
+
+clean_data = na.interpolation(co_con,"linear")
+
+###convert daily observations to monthly values
+
+month.avg = apply.monthly(clean_data,mean)
+
+data_sample = ts(month.avg, frequency = 12,
+                 end=c(2007,12,31))
+
+plot(data_sample)
+
+##### Forecast Model
+
+library(forecTheta)
+
+fit_dsm = dstm(data_sample, level=c(95), h=6)
+
+round(fit_dsm$mean,2)

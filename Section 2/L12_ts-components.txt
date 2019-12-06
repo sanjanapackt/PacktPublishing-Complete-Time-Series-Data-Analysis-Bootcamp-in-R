@@ -1,0 +1,61 @@
+#################Dengue
+
+setwd("F:\\DataMining_R\\3_LectureData\\time")
+
+d=read.csv("denguecases.csv")
+head(d)
+tail(d)
+
+#Aggregate regional data to represent the entire country
+denguecasesph=aggregate(Dengue_Cases~Month+Year,d,sum)
+
+head(denguecasesph)
+
+#Convert data into a time series
+denguecasesphts=ts(denguecasesph$Dengue_Cases,c(2008,1),c(2016,12),12)
+
+#12 is specified as these are monthly data
+
+plot(denguecasesphts)
+
+library(Kendall)
+lines(lowess(time(denguecasesphts),denguecasesphts),lwd=3, col=2)
+
+library(ggfortify)
+#Plot Decomposed Time Series Data
+autoplot(decompose(denguecasesphts))
+
+###### annual data
+
+g=read.csv("growth_in_gdp.csv")
+head(g)
+
+names(g)
+
+n=c("TIME","Country","Value")
+
+df= g[,colnames(g) %in% n] 
+
+head(df)
+tail(df)
+
+data=df[,c("Country","Value")]
+head(data)
+
+unique(data$Country)
+
+jp=subset(data,Country=="Japan")
+
+head(jp)
+
+data=as.numeric(unlist(jp[2]))
+head(data)
+
+data1=ts(data,start=c(1985),end=c(2015),frequency=1)
+
+plot(data1)
+
+lines(lowess(time(data1),data1),lwd=3, col=2)
+
+#Plot Decomposed Time Series Data
+autoplot(decompose(data1))

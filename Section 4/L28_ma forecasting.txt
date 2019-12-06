@@ -1,0 +1,35 @@
+library(tidyverse)      # data manipulation and visualization
+library(lubridate)      # easily work with dates and times
+library(fpp2)           # working with time series data
+library(zoo) 
+
+data("economics")
+head(economics)
+
+savings.ts = economics %>%
+  select(srate = psavert) %>%
+  ts(start = c(1967, 7), frequency = 12)
+
+head(savings.ts)
+
+autoplot(savings.ts, series = "Data") + 
+  autolayer(ma(savings.ts, 13), series = "1 yr MA") +
+  autolayer(ma(savings.ts, 61), series = "5 yr MA") +
+  autolayer(ma(savings.ts, 121), series = "10 yr MA") +
+  xlab("Date") + 
+  ylab("Savings Rate")
+
+############ Trailing Moving Average for Forecasting
+
+##predict the next month’s savings rate based on the 
+##previous year’s average
+## Rolling mean
+
+savings_tma <- economics %>%
+  select(date, srate = psavert) %>%
+  mutate(srate_tma = rollmean(srate, k = 12, fill = NA, align = "right"))
+
+savings_tma %>%
+  gather(metric, value, -date) %>%
+  ggplot(aes(date, value, color = metric)) +
+  geom_line()

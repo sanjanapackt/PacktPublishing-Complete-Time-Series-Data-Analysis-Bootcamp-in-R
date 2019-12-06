@@ -1,0 +1,62 @@
+########### Include season in the linear regression 
+
+
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(forecast)
+
+setwd("F:\\Forecasting_R\\1_Course\\Data\\section 4")
+Temperatures <- read.csv("daily-minimum-temperatures-in-me.csv", stringsAsFactors = FALSE)
+head(Temperatures)
+
+colnames(Temperatures) <- c("Date", "Temperature")
+
+# First we have to change the date to POSIXct
+Temperatures$Date <- strptime(Temperatures$Date, "%Y-%m-%d" )
+Temperatures$Date <- as.POSIXct(Temperatures$Date)
+Temperatures$Temperature <- as.numeric(Temperatures$Temperature)
+
+# Let's check the structure of the table
+str(Temperatures)
+
+# Now we create different columns for different time configurations
+# Month
+Temperatures <- mutate(Temperatures, MonthYear = paste(year(Date),formatC(month(Date), width = 2, flag = "0")))
+
+# Day of the week
+Temperatures <- mutate(Temperatures, Yearday = paste(year(Date), formatC(month(Date), width = 2, flag = "0"),
+                                                     formatC(day(Date), width = 2, flag = "0")))
+
+# Week of the year
+Temperatures <- mutate(Temperatures, Week = week(Date))
+
+# Year
+Temperatures <- mutate(Temperatures, Year = year(Date))
+Temperatures$Year <- as.factor(Temperatures$Year)
+# Let's check the structure of the table
+str(Temperatures)
+
+# First we need to use the year column to aggregate
+Temps_month <- aggregate(Temperatures$Temperature, by = list(Temperatures$MonthYear), FUN = function(x) mean(x, na.rm=T))
+
+# Now we create the time series adding the right period
+# It's better to define the end of the time series if it's not at the end of one year
+myts <- ts(Temps_month$x, frequency=12, start = c(1981, 01), end = c(1990, 12))
+plot(myts)
+
+# We need to create a data frame in order to use this function
+# The first column of this df should be the time series
+# The second one should be the numerical value of time
+my_df_ts <- data.frame(temperature = myts, as.numeric(time(myts)))
+names(my_df_ts) <- c("temperature", "time")
+
+# Then we can create a model using tslm
+# We can model using trend, season and random
+mymodel <- tslm(temperature~season+trend,my_df_ts)
+
+# And forecast using this same model
+# We are going to predict the next 10 years
+# We can see the ascending trend
+my_fc <- forecast(mymodel,h=120)
+autoplot(my_fc)

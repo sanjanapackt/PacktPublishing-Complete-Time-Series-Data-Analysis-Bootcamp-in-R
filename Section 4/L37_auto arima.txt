@@ -1,0 +1,39 @@
+########## Automatic ARIMA
+
+library(fpp)
+library(forecast)
+
+data (usconsumption)
+
+plot(usconsumption)
+
+head(usconsumption)
+
+##  Fit arima on consumption 
+
+fit1 =auto.arima(usconsumption[,1],seasonal=FALSE)
+
+fit1
+
+##yt=0.756+et+0.254et-1+0.226et-2+0.269et-3,
+## MA3 model
+
+plot(forecast(fit1,h=10),include=80)
+
+
+## forecast values for the next few years
+
+data= read.csv("5stocks.csv")
+head(data)
+
+df = data[c("Date","AAPL")]
+head(df)
+tail(df)
+
+df.ts = ts(df, frequency = 12, start = c(2001,7), end = c(2017,5))
+
+plot(df.ts)
+
+fit2 =auto.arima(df.ts[,1],seasonal=FALSE)
+
+fit2

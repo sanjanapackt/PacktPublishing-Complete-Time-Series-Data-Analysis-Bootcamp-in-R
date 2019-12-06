@@ -1,0 +1,59 @@
+######## Neural Networks for Forecasting
+
+
+library(forecast)
+library(ggplot2)
+
+data("AirPassengers")
+plot(AirPassengers)
+
+
+##training data
+
+air.train = window(AirPassengers, end = 1958)
+
+autoplot(air.train) +
+  ylab("Number of Passengers") +
+  ggtitle("Training dataset") +
+  theme_minimal()
+
+##testing data
+
+air.test = window(AirPassengers, start = 1958.001)
+
+autoplot(air.test) +
+  ylab("Number of Passengers") +
+  ggtitle("Testing dataset") +
+  theme_minimal()
+
+## Forecast with neural networks
+
+# Fitting nnetar model
+air.fit.nnetar = nnetar(air.train)
+
+## for future ime period h=35
+air.fcst.nnetar = forecast(air.fit.nnetar, h = 35)
+
+# Visualize model predictions
+autoplot(air.test) +
+  autolayer(air.fcst.nnetar, series = "nnetar Forecast", linetype = "dashed") +
+  theme_minimal() +
+  ylab("Number of Passengers")
+
+
+############## Use MLP from the nnfor package
+
+library(nnfor)
+# Fitting MLP model
+air.fit.mlp = mlp(air.train)
+air.fcst.mlp = forecast(air.fit.mlp, h = 35)
+
+# Visualize model predictions
+autoplot(air.test) +
+  autolayer(air.fcst.mlp, series = "MLP Forecast", linetype = "dashed") +
+  theme_minimal() +
+  ylab("Number of Passengers")
+
+
+
+

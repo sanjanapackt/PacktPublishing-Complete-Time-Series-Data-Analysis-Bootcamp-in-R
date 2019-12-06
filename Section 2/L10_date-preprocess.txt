@@ -1,0 +1,57 @@
+#######################################################################
+### ###### Work with dates in R
+library(lubridate)
+today()
+
+now()
+
+##get standard dates
+ymd("2017-01-31") #when the year comes first
+ymd(20170101)
+
+mdy("January 31st, 2017") #when the month comes first
+
+dmy("31-Jan-2017")#when the day comes first
+
+ #times
+
+ymd_hm("2017-01-01 11:30", tz = "UTC")
+
+mdy("Mar 5, 1940", tz = "GMT")
+
+######get components out
+
+datetime = ymd_hms("2015-05-11 12:34:56")
+datetime
+
+year(datetime) #year
+month(datetime) #month
+mday(datetime) #day
+
+n=read.csv("PlotNDMI.csv")
+head(n)
+
+class(n$Date2)
+
+n$Date2=dmy(n$Date) #lubridate
+
+n$Year=year(n$Date2)
+n$Month=month(n$Date2)
+
+ndmia=aggregate(NDMI~Month+Year,n,mean)
+head(ndmia)
+
+############
+#### on a data frame
+
+library(nycflights13)
+library(tidyverse)
+
+flights %>%
+  select (year, month,day, hour, minute, arr_time)
+require(dplyr)
+##combine the individual bits
+flights %>%
+  select(year, month, day, hour, minute) %>%
+  mutate(departure = make_datetime(year, month,day, hour, minute)
+  )

@@ -1,0 +1,44 @@
+###################################################################
+###### Detect Cyclical Period Using Fourier
+
+setwd("F:\\DataMining_R\\3_LectureData\\time")
+
+g=read.csv("GlobalLandTemperaturesByCountry.csv")
+
+head(g)
+
+g=na.omit(g)
+
+summary(g$Country)
+
+########## china
+
+chinaT=subset(g,Country=="China")
+head(chinaT)
+tail(chinaT)
+
+names=c("dt","AverageTemperature")
+
+chinaTemp=chinaT[,colnames(chinaT) %in% names] 
+head(chinaTemp)
+
+library(TSA)
+
+
+p = periodogram(chinaTemp$AverageTemperature)
+#is used to identify the dominant periods (or frequencies) of a time series
+
+#dominant spike at a low frequency
+
+dd = data.frame(freq=p$freq, spec=p$spec)
+order = dd[order(-dd$spec),]
+top2 = head(order, 2)
+
+top2
+
+time = 1/top2$f#  it takes 12 time periods for a complete cycle
+
+time
+
+### would be more worhwhile to apply on daily e-commerce transitions 
+## and blog visits 

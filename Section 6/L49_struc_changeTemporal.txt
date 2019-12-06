@@ -1,0 +1,51 @@
+####################################################################
+######## sudden changes in values over a period of time
+
+setwd("F:\\DataMining_R\\3_LectureData\\section3")
+g=read.csv("growth_in_gdp.csv")
+head(g)
+
+names(g)
+
+n=c("TIME","Country","Value")
+
+df= g[,colnames(g) %in% n] 
+
+head(df)
+tail(df)
+
+data=df[,c("Country","Value")]
+head(data)
+
+unique(data$Country)
+
+jp=subset(data,Country=="Japan")
+
+head(jp)
+
+data=as.numeric(unlist(jp[2]))
+head(data)
+
+data=ts(data,start=c(1985),end=c(2015),frequency=1)
+
+plot(data)
+
+require(changepoint) 
+#detect change in trend at different points of time
+cm=cpt.mean(data) #abrupt change in mean
+print(cm)
+plot(cm)
+
+require(ggfortify)
+autoplot(cpt.meanvar(data)) #abrupt change in mean and variance
+
+library(strucchange)
+##detect structural changes in data
+##breakpoints funcition uses a 
+##linear regression based approach to compute the breaks
+##partition that time series into segments
+autoplot(breakpoints(data ~ 1), ts.colour = 'blue', ts.linetype = 'dashed',
+         cpt.colour = 'dodgerblue3', cpt.linetype = 'solid')
+
+bpts <- breakpoints(data ~ 1)# get the breakpoints
+bpts

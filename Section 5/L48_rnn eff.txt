@@ -1,0 +1,109 @@
+########## RNN Efficacy
+
+library(astsa)
+library(quantmod)
+
+data("chicken")
+
+plot(chicken,xlab="Date",ylab="Price",col="darkblue")
+
+head(chicken)
+
+data = as.zoo(chicken)
+
+###create monthly lags
+
+x1 = Lag(data, k=1)
+x2 = Lag(data, k=2)
+x3 = Lag(data, k=3)
+x4 = Lag(data, k=4)
+
+x= cbind(data,x1,x2,x3,x4)
+
+head(x)
+
+###remove missing values
+
+x = x[-(1:4),] #remove the first 4 rows
+
+head(x)
+
+x=data.matrix(x)
+
+##scale observations
+range_data = function(x){(x-min(x))/(max(x)-min(x))}
+
+x = range_data(x)
+str(x)
+
+###predictors and response
+
+y = as.matrix(x[,1])
+
+x1= as.matrix(x[,2])
+x2= as.matrix(x[,3])
+x3= as.matrix(x[,4])
+x4= as.matrix(x[,5])
+
+str(x)
+
+### Model will predict previous 6 months of prices
+### So we use 170 data points for training
+
+n_train = 170
+
+y_train = as.matrix(y[1:n_train])
+
+x1_train = as.matrix(t(x1[1:n_train,]))
+x2_train = as.matrix(t(x2[1:n_train,]))
+x3_train = as.matrix(t(x3[1:n_train,]))
+x4_train = as.matrix(t(x4[1:n_train,]))
+
+### trainr function of the rnn package needs attaribute data as 3d
+
+x_train = array(c(x1_train,x2_train,x3_train,x4_train),
+                dim=c(dim(x1_train),4))
+
+library(rnn)
+
+set.seed(2)
+
+model1=trainr(Y=t(y_train),X=x_train, learningrate = 0.05,
+              hidden_dim = 3, numepochs = 500,
+              network_type = "rnn",
+              sigmoid="logistic")
+
+## 500 epochs, 3 nodes in the hidden layer 
+
+####### Examine the error reduction achieved by epoch
+
+error_1 = t(model1$error)
+rownames(error_1)=1:nrow(error_1)
+colnames(error_1)="error"
+plot(error_1)
+
+## model is learning from data
+
+##predict
+pred1_train = t(predictr(model1,x_train))
+
+cor(y_train,pred1_train)
+
+### but how did the model perform on the testing/unseen data?
+
+x1_test = as.matrix(t(x1[(n_train+1):nrow(x1),]))
+x2_test = as.matrix(t(x2[(n_train+1):nrow(x2),]))
+x3_test = as.matrix(t(x3[(n_train+1):nrow(x3),]))
+x4_test = as.matrix(t(x4[(n_train+1):nrow(x4),]))
+
+y_test = as.matrix(y[(n_train+1):nrow(x4)])
+
+
+##3d feature array
+
+x_test = array(c(x1_test,x2_test,x3_test,x4_test),
+            dim=c(dim(x1_test),4))
+
+pred1_test = t(predictr(model1, x_test))
+
+cor(y_test,pred1_test)

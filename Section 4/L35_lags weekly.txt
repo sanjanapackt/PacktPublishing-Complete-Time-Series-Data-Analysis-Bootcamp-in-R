@@ -1,0 +1,41 @@
+
+library(tscount)
+
+data("ecoli")
+
+head(ecoli)
+
+head(ecoli)
+
+class(ecoli$cases)
+
+## convert to time series object
+
+data = as.numeric(unlist(ecoli[3]))
+
+data = ts(matrix(data), start=c(2001,1), end=c(2013,20),
+          frequency=52)
+
+
+plot(data, xlab="Date", ylab= "Number of Cases", col="green")
+
+library(zoo)
+library(quantmod)
+
+data = as.zoo(data)
+
+class(data)
+
+### weekly lags 
+
+x1 = Lag(data, k=1) #observation lagged by week
+
+x2 = Lag(data, k=2) #observation lagged by 2 weeks
+
+x3 = Lag(data, k=3)
+
+x4 = Lag(data, k=4)
+
+x=cbind(x1,x2,x3,x4)
+
+head(x)

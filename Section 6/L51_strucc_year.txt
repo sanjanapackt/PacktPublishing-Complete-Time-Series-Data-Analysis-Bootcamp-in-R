@@ -1,0 +1,31 @@
+
+library(strucchange)
+library(astsa)
+
+data("globtemp")
+plot(globtemp) #yearly time series
+
+
+summary(lm(globtemp ~ 1))
+
+##take a snapshot of the time series
+
+globtemp_win = window(globtemp, end = 2000)
+lev_fit = lm(globtemp_win ~ 1)
+summary(lev_fit)
+
+
+plot(globtemp_win)
+lines(ts(fitted(lev_fit), start = 1880, frequency = 1), col = 4)
+
+## look for breakpoints
+
+globtemp_brk = breakpoints(globtemp_win ~ 1, h = 0.1)
+summary(globtemp_brk)
+plot(globtemp_brk) #5 brakpoints are optimal
+
+plot(globtemp_win)
+lines(fitted(globtemp_brk, breaks = 5), col = 4)
+lines(confint(globtemp_brk, breaks = 5))
+
+breakdates(globtemp_brk, breaks = 5)

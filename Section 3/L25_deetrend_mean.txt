@@ -1,0 +1,19 @@
+#########################################################################
+
+library(Quandl)
+library(astsa)
+library(forecast)
+library("tseries")
+
+gdp = Quandl("FRED/GDPC1",order="asc") # Download data via Quandl
+head(gdp)
+
+names(gdp) <- c("Time","GDP") # Rename variables
+head(gdp)
+tail(gdp)
+
+yearlymean <- ave(gdp$GDP, gl(71, 12), FUN = mean)
+## gl(total no. of years, 12 months)
+gdp.dt <- gdp$GDP - yearlymean #gdp post subtraction 
+
+adf.test(gdp.dt)

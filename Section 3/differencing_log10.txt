@@ -1,0 +1,25 @@
+library(astsa)
+library(forecast)
+library("tseries")
+
+data = read.csv('http://ucanalytics.com/blogs/wp-content/uploads/2015/06/Tractor-Sales.csv')
+data = ts(data[,2],start = c(2003,1),frequency = 12)
+head(data)
+plot(data, xlab='Years', ylab = 'Tractor Sales')
+
+
+##Differencing:make data stationary on mean/remove trend
+
+plot(diff(data),ylab='Differenced Tractor Sales')
+
+
+##log transform data to make data stationary on variance
+
+plot(log10(data),ylab='Log (Tractor Sales)')
+
+
+##Difference log transform data to make data stationary on both mean and variance
+
+plot(diff(log10(data)),ylab='Differenced Log (Tractor Sales)')
+
+adf.test(diff(log10(data)))
